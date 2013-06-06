@@ -33,6 +33,7 @@
     BOOL isNextAllow;
     BOOL isBox2d;
     MyContactListener *_contactListener;
+    int guidCountBall;
 }
 
 // returns a CCScene that contains the HelloWorldLayer as the only child

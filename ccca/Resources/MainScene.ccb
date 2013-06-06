@@ -170,7 +170,7 @@
 						<key>value</key>
 						<array>
 							<string></string>
-							<string>ccbResources/32_map_color.png</string>
+							<string>ccbResources/22_map_color.png</string>
 						</array>
 					</dict>
 				</array>
@@ -197,8 +197,8 @@
 						<string>Position</string>
 						<key>value</key>
 						<array>
-							<real>385</real>
-							<real>515</real>
+							<real>384</real>
+							<real>512</real>
 							<integer>0</integer>
 						</array>
 					</dict>
@@ -246,8 +246,6 @@
 						</array>
 					</dict>
 				</array>
-				<key>selected</key>
-				<true/>
 			</dict>
 		</array>
 		<key>customClass</key>

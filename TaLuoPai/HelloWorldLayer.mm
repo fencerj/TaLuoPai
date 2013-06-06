@@ -19,7 +19,7 @@
 enum {
 	kTagParentNode = 1,
 };
-int sceneIdx=9;
+int sceneIdx=7;
 int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
 #pragma mark - HelloWorldLayer
 
@@ -93,11 +93,11 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
             bodyDef.position.Set(migongSpr.position.x/32.0,migongSpr.position.y/32.0 );
             b2Body *body = world->CreateBody(&bodyDef);
             
-            for (int i = 1; i <= B2FrameCount[sceneIdx/2]; i++) {
-                [[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:[NSString stringWithFormat:@"%2d_map_kuang_%d",sceneIdx+1,i]];
+            for (int i = 1; i <= B2FrameCount[(sceneIdx+1)/2-1]; i++) {
+                [[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:[NSString stringWithFormat:@"%02d_map_kuang_%d",sceneIdx+1,i]];
             }
             
-            [migongSpr setAnchorPoint:[[GB2ShapeCache sharedShapeCache] anchorPointForShape:[NSString stringWithFormat:@"%2d_map_kuang_1",sceneIdx+1]]];
+            [migongSpr setAnchorPoint:[[GB2ShapeCache sharedShapeCache] anchorPointForShape:[NSString stringWithFormat:@"%02d_map_kuang_1",sceneIdx+1]]];
             [self addChild:migongSpr z:-1];
 
         }
@@ -126,7 +126,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
     
     
     b2CircleShape circle;
-    circle.m_radius = ball.contentSize.width/2.0/PTM_RATIO;
+    circle.m_radius = ball.contentSize.width/2.35/PTM_RATIO;
     // Define the dynamic body fixture.
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &circle;
@@ -156,7 +156,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
     
     
     b2CircleShape circle;
-    circle.m_radius = ball.contentSize.width/2.0/PTM_RATIO;
+    circle.m_radius = ball.contentSize.width/3.3/PTM_RATIO;
     // Define the dynamic body fixture.
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &circle;
@@ -177,7 +177,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
         
        
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        unLocked = [defaults boolForKey:[NSString stringWithFormat:@"unlocked%d",sceneIdx]];
+        unLocked = [defaults boolForKey:[NSString stringWithFormat:@"unlocked%d",(sceneIdx+1)/2]];
          CGSize screenSize = [[CCDirector sharedDirector] winSize];
         if (!unLocked) {
            
@@ -228,9 +228,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
 {
 	
 	CGSize s = [[CCDirector sharedDirector] winSize];
-	
-    
-    
+
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
 	world = new b2World(gravity);
@@ -372,16 +370,67 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
 	for(pos = _contactListener->_contacts.begin();
 		pos != _contactListener->_contacts.end(); ++pos) {
         MyContact contact = *pos;
+        b2Body *bodyB = contact.fixtureB->GetBody();
+        b2Body *bodyA = contact.fixtureA->GetBody();
+        CCSprite *sprA = (CCSprite*)(bodyA->GetUserData());
+        CCSprite *sprB = (CCSprite*)(bodyB->GetUserData());
         NSString *fixtureIdA = (NSString*)(contact.fixtureA->GetUserData());
 		NSString *fixtureIdB = (NSString*)(contact.fixtureB->GetUserData());
-        if (([fixtureIdA isEqualToString:@"ball"] && [fixtureIdB isEqualToString:@"holl"])||([fixtureIdB isEqualToString:@"ball"] && [fixtureIdA isEqualToString:@"holl"])  ) {
+        if ([fixtureIdA isEqualToString:@"ball"] && [fixtureIdB isEqualToString:@"holl"] ) {
             CCLOG(@"inTheHoll");
-            [self unschedule:_cmd];
+            
+            world->DestroyBody(bodyA);
+            [sprA runAction:[CCSequence actions:[CCEaseBounceIn actionWithAction:[CCSpawn actions:[CCMoveTo actionWithDuration:0.3 position:sprB.position],[CCScaleTo actionWithDuration:0.3 scale:0],nil]],[CCCallBlock actionWithBlock:^{
+                if (sceneIdx==3) {
+                    guidCountBall++;
+                    if (guidCountBall==2) {
+                        [self showRealPage];
+                    }
+                }
+                else
+                {
+                    [self showRealPage];
+                }
+            }],nil]];
+            
+            //[self unschedule:_cmd];
+            break;
+            
+        }
+
+        if ([fixtureIdB isEqualToString:@"ball"] && [fixtureIdA isEqualToString:@"holl"])
+        {
+            
+            
+            world->DestroyBody(bodyB);
+            [sprB runAction:[CCSequence actions:[CCEaseBounceIn actionWithAction:[CCSpawn actions:[CCMoveTo actionWithDuration:0.3 position:sprA.position],[CCScaleTo actionWithDuration:0.3 scale:0],nil]],[CCCallBlock actionWithBlock:^{
+                if (sceneIdx==3) {
+                    guidCountBall++;
+                    if (guidCountBall==2) {
+                        [self showRealPage];
+                    }
+                }
+                else
+                {
+                    [self showRealPage];
+                }
+            }],nil]];
             break;
         }
 	}
 }
-
+-(void)showRealPage
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:YES forKey:[NSString stringWithFormat:@"unlocked%d",(sceneIdx+1)/2]];
+    [defaults synchronize];
+    
+    CCScene *scene = [CCScene node];
+    HelloWorldLayer *layer = [[[HelloWorldLayer alloc] init] autorelease];
+    [scene addChild:layer ];
+    [[CCDirector sharedDirector] replaceScene:[CCTransitionFlipX transitionWithDuration:0.5 scene:scene]];
+    
+}
 - (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
 	//Add a new body/atlas sprite at the touched location
@@ -389,9 +438,17 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
 		CGPoint location = [touch locationInView: [touch view]];
 		location = [[CCDirector sharedDirector] convertToGL: location];
         if (unLocked) {
-            //[self nextPage];
+            [self nextPage];
         }
 	}
+}
+-(void)nextPage
+{
+    sceneIdx+=2;
+    CCScene *scene = [CCScene node];
+    HelloWorldLayer *layer = [[[HelloWorldLayer alloc] init] autorelease];
+    [scene addChild:layer ];
+    [[CCDirector sharedDirector] replaceScene:[CCTransitionFade transitionWithDuration:0.5 scene:scene withColor:ccc3(255, 255, 255)]];
 }
 - (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
 {
