@@ -14,13 +14,13 @@
 
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
-
+#import "GB2ShapeCache.h"
 
 enum {
 	kTagParentNode = 1,
 };
-
-
+int sceneIdx=9;
+int B2FrameCount[22] = {0,0,2,4,2,1,2,1,5,2,3,3,2,3,1,2,1,1,1,4,1,4};
 #pragma mark - HelloWorldLayer
 
 @interface HelloWorldLayer()
@@ -45,8 +45,22 @@ enum {
 	// return the scene
 	return scene;
 }
++(CCScene *) sceneOther
+{
+	// 'scene' is an autorelease object.
+	CCScene *scene = [CCScene node];
+	
+	// 'layer' is an autorelease object.
+	HelloWorldLayer *layer = [[[HelloWorldLayer alloc] initOther] autorelease];
+	
+	// add layer as a child to scene
+	[scene addChild: layer];
+	
+	// return the scene
+	return scene;
+}
 
--(id) init
+-(id) initOther
 {
 	if( (self=[super init])) {
 		
@@ -55,39 +69,150 @@ enum {
 		self.touchEnabled = YES;
 		self.accelerometerEnabled = YES;
 		CGSize s = [CCDirector sharedDirector].winSize;
-		
 		// init physics
 		[self initPhysics];
 		
-		// create reset button
-		[self createMenu];
-		
-		//Set up sprite
-		
-#if 1
-		// Use batch node. Faster
-		CCSpriteBatchNode *parent = [CCSpriteBatchNode batchNodeWithFile:@"blocks.png" capacity:100];
-		spriteTexture_ = [parent texture];
-#else
-		// doesn't use batch node. Slower
-		spriteTexture_ = [[CCTextureCache sharedTextureCache] addImage:@"blocks.png"];
-		CCNode *parent = [CCNode node];
-#endif
-		[self addChild:parent z:0 tag:kTagParentNode];
-		
-		
-		[self addNewSpriteAtPosition:ccp(s.width/2, s.height/2)];
-		
-		CCLabelTTF *label = [CCLabelTTF labelWithString:@"Tap screen" fontName:@"Marker Felt" fontSize:32];
-		[self addChild:label z:0];
-		[label setColor:ccc3(0,0,255)];
-		label.position = ccp( s.width/2, s.height-50);
-		
+        
+        CCSprite *bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%d_bg.jpg",sceneIdx+1]];
+        bg.position = ccp(s.width/2,s.height/2);
+        [self addChild:bg z:-1];
+        
+        if (sceneIdx>4)
+        {
+            CCSprite *migongSpr = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%02d_map_color.png",sceneIdx+1]];
+            
+            migongSpr.position = ccp(s.width/2,s.height/2);
+            [[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"b2_kuang_1.plist"];
+            [[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"b2_kuang_2.plist"];
+            [[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"b2_kuang_3.plist"];
+            [[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"b2_kuang_4.plist"];
+            [[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"b2_kuang_5.plist"];
+            b2BodyDef bodyDef;
+            bodyDef.type = b2_kinematicBody;
+            bodyDef.userData = migongSpr;
+            bodyDef.position.Set(migongSpr.position.x/32.0,migongSpr.position.y/32.0 );
+            b2Body *body = world->CreateBody(&bodyDef);
+            
+            for (int i = 1; i <= B2FrameCount[sceneIdx/2]; i++) {
+                [[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:[NSString stringWithFormat:@"%2d_map_kuang_%d",sceneIdx+1,i]];
+            }
+            
+            [migongSpr setAnchorPoint:[[GB2ShapeCache sharedShapeCache] anchorPointForShape:[NSString stringWithFormat:@"%2d_map_kuang_1",sceneIdx+1]]];
+            [self addChild:migongSpr z:-1];
+
+        }
+        if (sceneIdx==3) {
+            [self addBall];
+        }
+        [self addBall];
+        [self addHoll];
 		[self scheduleUpdate];
 	}
 	return self;
 }
+-(void)addBall
+{
+    
+    CCSprite *ball = [CCSprite spriteWithFile:@"qiu_hong.png"];
+    ball.position = ccp(100,900);
+    ball.userData = @"ball";
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    
+    bodyDef.position.Set(ball.position.x/PTM_RATIO, ball.position.y/PTM_RATIO);
+    bodyDef.userData = ball;
+    b2Body *bodyC;
+    bodyC = world->CreateBody(&bodyDef);
+    
+    
+    b2CircleShape circle;
+    circle.m_radius = ball.contentSize.width/2.0/PTM_RATIO;
+    // Define the dynamic body fixture.
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &circle;
+    fixtureDef.density = 3.0f;
+    fixtureDef.friction = 5.0;
+    fixtureDef.restitution = 0;
+    fixtureDef.userData = @"ball";
+    bodyC->CreateFixture(&fixtureDef);
+    bodyC->ApplyForceToCenter(b2Vec2(10,0));
+    
+    [self addChild:ball z:-1 ];
+}
 
+-(void)addHoll
+{
+    
+    CCSprite *ball = [CCSprite spriteWithFile:@"dong_color.png"];
+    ball.position = ccp(384,512);
+    //ball.userData = @"ball";
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_kinematicBody;
+    
+    bodyDef.position.Set(ball.position.x/PTM_RATIO, ball.position.y/PTM_RATIO);
+    bodyDef.userData = ball;
+    b2Body *bodyC;
+    bodyC = world->CreateBody(&bodyDef);
+    
+    
+    b2CircleShape circle;
+    circle.m_radius = ball.contentSize.width/2.0/PTM_RATIO;
+    // Define the dynamic body fixture.
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &circle;
+    fixtureDef.density = 3.0f;
+    fixtureDef.friction = 5.0;
+    fixtureDef.restitution = 0;
+    fixtureDef.userData = @"holl";
+    bodyC->CreateFixture(&fixtureDef);
+    //bodyC->ApplyForceToCenter(b2Vec2(10,0));
+    
+    [self addChild:ball z:-1 ];
+}
+-(id) init
+{
+	if( (self=[super init])) {
+        
+      
+        
+       
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        unLocked = [defaults boolForKey:[NSString stringWithFormat:@"unlocked%d",sceneIdx]];
+         CGSize screenSize = [[CCDirector sharedDirector] winSize];
+        if (!unLocked) {
+           
+            self.touchEnabled = NO;
+            CCSprite *bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%d_bg.jpg",sceneIdx+1]];
+            CCSprite *text = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%02d_ch.png",sceneIdx+1]];
+            bg.position = ccp(screenSize.width/2,screenSize.height/2);
+            text.position = ccp(screenSize.width/2,screenSize.height/2);
+            [self addChild:bg z:0];
+            [self addChild:text z:0];
+            
+            CCMenuItemImage *item = [CCMenuItemImage itemWithNormalImage:@"tu_game1.png" selectedImage:@"tu_game2.png" block:^(id sender){
+                CCScene *scene = [CCScene node];
+                HelloWorldLayer *layer = [[[HelloWorldLayer alloc] initOther] autorelease];
+                [scene addChild:layer ];
+                [[CCDirector sharedDirector] replaceScene:[CCTransitionFade transitionWithDuration:0.5 scene:scene withColor:ccc3(255, 255, 255)]];
+            } ];
+            
+            item.position = ccp(screenSize.width/2,268-item.contentSize.height/2);
+            CCMenu *menu = [CCMenu menuWithItems:item, nil];
+            menu.position = CGPointZero;
+            [self addChild:menu z:1];
+        }
+        else{
+             CCSprite *bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%d_done.jpg",sceneIdx]];
+             bg.position = ccp(screenSize.width/2,screenSize.height/2);
+            [self addChild:bg z:1];
+            
+            self.touchEnabled = YES;
+        }
+       
+        
+	}
+	return self;
+}
 -(void) dealloc
 {
 	delete world;
@@ -99,74 +224,24 @@ enum {
 	[super dealloc];
 }	
 
--(void) createMenu
-{
-	// Default font size will be 22 points.
-	[CCMenuItemFont setFontSize:22];
-	
-	// Reset Button
-	CCMenuItemLabel *reset = [CCMenuItemFont itemWithString:@"Reset" block:^(id sender){
-		[[CCDirector sharedDirector] replaceScene: [HelloWorldLayer scene]];
-	}];
-
-	// to avoid a retain-cycle with the menuitem and blocks
-	__block id copy_self = self;
-
-	// Achievement Menu Item using blocks
-	CCMenuItem *itemAchievement = [CCMenuItemFont itemWithString:@"Achievements" block:^(id sender) {
-		
-		
-		GKAchievementViewController *achivementViewController = [[GKAchievementViewController alloc] init];
-		achivementViewController.achievementDelegate = copy_self;
-		
-		AppController *app = (AppController*) [[UIApplication sharedApplication] delegate];
-		
-		[[app navController] presentModalViewController:achivementViewController animated:YES];
-		
-		[achivementViewController release];
-	}];
-	
-	// Leaderboard Menu Item using blocks
-	CCMenuItem *itemLeaderboard = [CCMenuItemFont itemWithString:@"Leaderboard" block:^(id sender) {
-		
-		
-		GKLeaderboardViewController *leaderboardViewController = [[GKLeaderboardViewController alloc] init];
-		leaderboardViewController.leaderboardDelegate = copy_self;
-		
-		AppController *app = (AppController*) [[UIApplication sharedApplication] delegate];
-		
-		[[app navController] presentModalViewController:leaderboardViewController animated:YES];
-		
-		[leaderboardViewController release];
-	}];
-	
-	CCMenu *menu = [CCMenu menuWithItems:itemAchievement, itemLeaderboard, reset, nil];
-	
-	[menu alignItemsVertically];
-	
-	CGSize size = [[CCDirector sharedDirector] winSize];
-	[menu setPosition:ccp( size.width/2, size.height/2)];
-	
-	
-	[self addChild: menu z:-1];	
-}
-
 -(void) initPhysics
 {
 	
 	CGSize s = [[CCDirector sharedDirector] winSize];
 	
+    
+    
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
 	world = new b2World(gravity);
-	
-	
+	isBox2d = YES;
+    m_debugDraw = new GLESDebugDraw( PTM_RATIO );
+    
 	// Do we want to let bodies sleep?
-	world->SetAllowSleeping(true);
-	
+	world->SetAllowSleeping(false);
 	world->SetContinuousPhysics(true);
 	
-	m_debugDraw = new GLESDebugDraw( PTM_RATIO );
+	
 	world->SetDebugDraw(m_debugDraw);
 	
 	uint32 flags = 0;
@@ -177,7 +252,8 @@ enum {
 	//		flags += b2Draw::e_centerOfMassBit;
 	m_debugDraw->SetFlags(flags);		
 	
-	
+	_contactListener = new MyContactListener();
+    world->SetContactListener(_contactListener);
 	// Define the ground body.
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0, 0); // bottom-left corner
@@ -216,14 +292,17 @@ enum {
 	// It is recommend to disable it
 	//
 	[super draw];
-	
-	ccGLEnableVertexAttribs( kCCVertexAttribFlag_Position );
-	
-	kmGLPushMatrix();
-	
-	world->DrawDebugData();	
-	
-	kmGLPopMatrix();
+	if (isBox2d) {
+        ccGLEnableVertexAttribs( kCCVertexAttribFlag_Position );
+        
+        kmGLPushMatrix();
+        
+        
+        world->DrawDebugData();
+        
+        kmGLPopMatrix();
+    }
+
 }
 
 -(void) addNewSpriteAtPosition:(CGPoint)p
@@ -275,7 +354,32 @@ enum {
 	
 	// Instruct the world to perform a single step of simulation. It is
 	// generally best to keep the time step and iterations fixed.
-	world->Step(dt, velocityIterations, positionIterations);	
+	world->Step(dt, velocityIterations, positionIterations);
+    
+    
+    for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
+	{
+		if (b->GetUserData() != NULL) {
+			//Synchronize the AtlasSprites position and rotation with the corresponding body
+			CCSprite *myActor = (CCSprite*)b->GetUserData();
+			myActor.position = CGPointMake( b->GetPosition().x * PTM_RATIO, b->GetPosition().y * PTM_RATIO);
+			myActor.rotation = -1 * CC_RADIANS_TO_DEGREES(b->GetAngle());
+		}
+	}
+	
+	
+	std::vector<MyContact>::iterator pos;
+	for(pos = _contactListener->_contacts.begin();
+		pos != _contactListener->_contacts.end(); ++pos) {
+        MyContact contact = *pos;
+        NSString *fixtureIdA = (NSString*)(contact.fixtureA->GetUserData());
+		NSString *fixtureIdB = (NSString*)(contact.fixtureB->GetUserData());
+        if (([fixtureIdA isEqualToString:@"ball"] && [fixtureIdB isEqualToString:@"holl"])||([fixtureIdB isEqualToString:@"ball"] && [fixtureIdA isEqualToString:@"holl"])  ) {
+            CCLOG(@"inTheHoll");
+            [self unschedule:_cmd];
+            break;
+        }
+	}
 }
 
 - (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -283,25 +387,29 @@ enum {
 	//Add a new body/atlas sprite at the touched location
 	for( UITouch *touch in touches ) {
 		CGPoint location = [touch locationInView: [touch view]];
-		
 		location = [[CCDirector sharedDirector] convertToGL: location];
-		
-		[self addNewSpriteAtPosition: location];
+        if (unLocked) {
+            //[self nextPage];
+        }
 	}
 }
-
-#pragma mark GameKit delegate
-
--(void) achievementViewControllerDidFinish:(GKAchievementViewController *)viewController
+- (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
 {
-	AppController *app = (AppController*) [[UIApplication sharedApplication] delegate];
-	[[app navController] dismissModalViewControllerAnimated:YES];
+	static float prevX=0, prevY=0;
+	
+	//#define kFilterFactor 0.05f
+#define kFilterFactor 1.0f	// don't use filter. the code is here just as an example
+	
+	float accelX = (float) acceleration.x * kFilterFactor + (1- kFilterFactor)*prevX;
+	float accelY = (float) acceleration.y * kFilterFactor + (1- kFilterFactor)*prevY;
+	
+	prevX = accelX;
+	prevY = accelY;
+	
+	// accelerometer values are in "Portrait" mode. Change them to Landscape left
+	// multiply the gravity by 10
+	b2Vec2 gravity(accelX * 25, accelY * 25);
+	
+	world->SetGravity( gravity );
 }
-
--(void) leaderboardViewControllerDidFinish:(GKLeaderboardViewController *)viewController
-{
-	AppController *app = (AppController*) [[UIApplication sharedApplication] delegate];
-	[[app navController] dismissModalViewControllerAnimated:YES];
-}
-
 @end

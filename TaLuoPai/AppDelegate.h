@@ -5,7 +5,7 @@
 //  Created by Ivan on 13-6-5.
 //  Copyright Ivan 2013年. All rights reserved.
 //
-
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "cocos2d.h"
 

@@ -20,10 +20,10 @@
 	
 	// iPhone only
 	if( [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone )
-		return UIInterfaceOrientationMaskLandscape;
+		return UIInterfaceOrientationMaskPortrait;
 	
 	// iPad only
-	return UIInterfaceOrientationMaskLandscape;
+	return UIInterfaceOrientationMaskPortrait;
 }
 
 // Supported orientations. Customize it for your own needs
@@ -32,11 +32,11 @@
 {
 	// iPhone only
 	if( [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone )
-		return UIInterfaceOrientationIsLandscape(interfaceOrientation);
+		return UIInterfaceOrientationIsPortrait(interfaceOrientation);
 	
 	// iPad only
 	// iPhone only
-	return UIInterfaceOrientationIsLandscape(interfaceOrientation);
+	return UIInterfaceOrientationIsPortrait(interfaceOrientation);
 }
 
 // This is needed for iOS4 and iOS5 in order to ensure
@@ -138,7 +138,23 @@
 	
 	// make main window visible
 	[window_ makeKeyAndVisible];
-	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    NSMutableArray *keyArr = [NSMutableArray arrayWithCapacity:22];
+    NSMutableArray *valueArr = [NSMutableArray arrayWithCapacity:22];
+//    [keyArr addObject:@"lock2"];
+//    [keyArr addObject:@"lock4"];
+//    [valueArr addObject:[NSNumber numberWithBool:YES]];
+//    [valueArr addObject:[NSNumber numberWithBool:YES]];
+    
+    for (int i = 1; i <=22 ; i++) {
+        [keyArr addObject:[NSString stringWithFormat:@"unlocked%d",i*2]];
+        [valueArr addObject:[NSNumber numberWithBool:NO]];
+    }
+    NSDictionary *defaultValues = [NSDictionary dictionaryWithObjects:valueArr forKeys:keyArr];
+    [defaults registerDefaults:defaultValues];
+    [defaults synchronize];
+    
 	return YES;
 }
 
