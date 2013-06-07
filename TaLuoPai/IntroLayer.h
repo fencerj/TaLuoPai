@@ -9,10 +9,20 @@
 
 // When you import this file, you import all the cocos2d classes
 #import "cocos2d.h"
-
+#import "CCScrollLayer.h"
+#import <Foundation/Foundation.h>
 // HelloWorldLayer
-@interface IntroLayer : CCLayer
+@interface IntroLayer : CCLayer<CCScrollLayerDelegate>
 {
+    CCLayer *infoLayer;
+    
+    CCLayer *selectLayer;
+    CCSprite *infoBg;
+    BOOL isInfoMoving;
+    BOOL isShowed;
+    
+    CCScrollLayer *_shareBgLayer;
+    CCLayerColor *layHold;
 }
 
 // returns a CCScene that contains the HelloWorldLayer as the only child

@@ -8,12 +8,25 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TaLuoPai/HelloWorldLayer.mm"
-         timestampString = "392220947.781467"
+         timestampString = "392287900.035591"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "435"
-         endingLineNumber = "435"
-         landmarkName = "-ccTouchesEnded:withEvent:"
+         startingLineNumber = "528"
+         endingLineNumber = "528"
+         landmarkName = "-update:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "TaLuoPai/CCScrollLayer/CCScrollLayer.m"
+         timestampString = "392283974.288611"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "205"
+         endingLineNumber = "205"
+         landmarkName = "-updatePages"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>
