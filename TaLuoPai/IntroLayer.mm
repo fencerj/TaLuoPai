@@ -76,25 +76,30 @@ extern int sceneIdx;
         
         {
             
-            //            CCMenuItemToggle *itemSound = [CCMenuItemToggle itemWithTarget:self selector:@selector(mSoundFunc:) items:
-            //                                           [CCMenuItemImage itemFromNormalImage:@"me_icon_sound1" selectedImage:@"me_icon_sound1.png"],
-            //                                           [CCMenuItemImage itemFromNormalImage:@"me_icon_sound2.png" selectedImage:@"me_icon_sound2.png"],
-            //                                           nil];
-            //            CCMenu *mSound = [CCMenu menuWithItems:itemSound,nil];
-            //            if (soundFlag) {
-            //                itemSound.selectedIndex = 0;
-            //            }
-            //            else {
-            //                itemSound.selectedIndex = 1;
-            //            }
-            //            itemSound.position = ccp(138,86);
+            CCSprite *spOn1 = [CCSprite spriteWithFile:@"me_icon_sound2.png"];
+            CCSprite *spOff1 = [CCSprite spriteWithFile:@"me_icon_sound1.png"];
+            CCSprite *spOn2 = [CCSprite spriteWithFile:@"me_icon_sound2.png"];
+            CCSprite *spOff2 = [CCSprite spriteWithFile:@"me_icon_sound1.png"];
             
             
-            CCMenuItem *item1 = [CCMenuItemImage itemWithNormalImage:@"me_icon_sound1.png" selectedImage:@"me_icon_sound2.png" block:^(id sender){
-                
-                
-            }];
-            item1.position = ccp(138,86);
+            CCMenuItem *musicItem1;
+            CCMenuItem *musicItem2;
+            CCMenuItemToggle *musicTurn;
+            //CCMenu *musicMenu;
+            musicItem1 = [CCMenuItemSprite itemWithNormalSprite:spOn1 selectedSprite:spOff1 ];
+            musicItem2 = [CCMenuItemSprite itemWithNormalSprite:spOff2 selectedSprite:spOn2 ];
+            
+            if (soundFlag == YES) {
+                musicTurn = [CCMenuItemToggle itemWithTarget:self selector:@selector(mSoundFunc:) items:musicItem1,musicItem2, nil];
+            }
+            else {
+                musicTurn = [CCMenuItemToggle itemWithTarget:self selector:@selector(mSoundFunc:) items:musicItem2,musicItem1, nil];
+            }
+            
+            //musicTurn.anchorPoint = ccp(0.5,0.5);
+            musicTurn.position = ccp(138,86);
+         
+            
             CCMenuItem *item2 = [CCMenuItemImage itemWithNormalImage:@"me_icon_jieshao1.png" selectedImage:@"me_icon_jieshao2.png" block:^(id sender){
                 if (!isInfoMoving) {
                     isInfoMoving = YES;
@@ -121,7 +126,7 @@ extern int sceneIdx;
             }];
             item2.position = ccp(609,86);
             
-            CCMenu *menu = [CCMenu menuWithItems:item1,item2, nil];
+            CCMenu *menu = [CCMenu menuWithItems:musicTurn,item2, nil];
             menu.position = CGPointZero;
             
             [setBar addChild:menu z:1];
@@ -179,14 +184,19 @@ extern int sceneIdx;
 }
 -(void)mSoundFunc:(id)sender
 {
-    soundFlag = !soundFlag;
-	if (soundFlag) {
+    if (soundFlag == YES)
+    {
+        soundFlag = NO;
         [[SimpleAudioEngine sharedEngine] stopBackgroundMusic];
     }
-	else {
+    else
+    {
+        soundFlag = YES;
         [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"music.mp3"];
     }
+    //soundFlag = !soundFlag;
 }
+
 - (void) scrollLayer: (CCScrollLayer *) sender scrolledToPageNumber: (int) page
 {
     //[label setString:[NSString stringWithFormat:@"%d/%d",_shareBgLayer.currentScreen+1,_shareBgLayer.totalScreens]];

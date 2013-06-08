@@ -164,7 +164,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
         
         
         CCMenu *menu1 = [CCMenu menuWithItems:item3, nil];
-        [self  addChild:menu1 z:2];
+        //[self  addChild:menu1 z:2];
         menu1.position = CGPointZero;
 	}
 	return self;
@@ -188,8 +188,24 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
 -(void)addBall
 {
     
-    CCSprite *ball = [CCSprite spriteWithFile:@"qiu_hong.png"];
-    ball.position = ccp([HelloWorldLayer createRandomsizeValueFloat:80 toFloat:150],900);
+    int ranVal = [HelloWorldLayer createRandomsizeValueInt:1 toInt:3];
+    NSString *ballName;
+    switch (ranVal) {
+        case 1:
+            ballName = @"qiu_hong.png";
+            break;
+        case 2:
+            ballName = @"qiu_lan.png";
+            break;
+        case 3:
+            ballName = @"qiu_zi.png";
+            break;
+        default:
+            break;
+    }
+    
+    CCSprite *ball = [CCSprite spriteWithFile:ballName];
+    ball.position = ccp([HelloWorldLayer createRandomsizeValueFloat:80 toFloat:600],900);
     ball.userData = @"ball";
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
@@ -201,7 +217,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
     
     
     b2CircleShape circle;
-    circle.m_radius = ball.contentSize.width/2.5/PTM_RATIO;
+    circle.m_radius = ball.contentSize.width/2.8/PTM_RATIO;
     // Define the dynamic body fixture.
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &circle;
@@ -211,7 +227,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
     fixtureDef.userData = @"ball";
     bodyC->CreateFixture(&fixtureDef);
     
-    bodyC->ApplyForceToCenter(b2Vec2([HelloWorldLayer createRandomsizeValueFloat:5 toFloat:20],[HelloWorldLayer createRandomsizeValueFloat:-5 toFloat:18]));
+    bodyC->ApplyForceToCenter(b2Vec2([HelloWorldLayer createRandomsizeValueFloat:5 toFloat:70],[HelloWorldLayer createRandomsizeValueFloat:-50 toFloat:18]));
     
     [self addChild:ball z:-1 ];
 }
@@ -292,7 +308,30 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
 {
 	if( (self=[super init])) {
         
-        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"music.mp3"];
+        
+        
+        
+        if (soundFlag) {
+            if(![[SimpleAudioEngine sharedEngine] isBackgroundMusicPlaying]){
+                [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"music.mp3"];
+            }
+        }
+        
+        if (sceneIdx==45) {
+            CCMenuItemImage  *item = [CCMenuItemImage itemWithNormalImage:@"45_done.jpg" selectedImage:@"45_done.jpg" block:^(id sender){
+                
+                CCScene *scene = [CCScene node];
+                IntroLayer *layer = [[[IntroLayer alloc] init] autorelease];
+                [scene addChild:layer ];
+                [[CCDirector sharedDirector] replaceScene:[CCTransitionFade transitionWithDuration:0.5 scene:scene withColor:ccc3(0, 0, 0)]];
+            }];
+            item.position = ccp(384,512);
+            CCMenu *menu = [CCMenu menuWithItems:item, nil];
+            menu.position = CGPointZero;
+            [self addChild:menu];
+            return self;
+        }
+        
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         unLocked = [defaults boolForKey:[NSString stringWithFormat:@"unlocked%d",(sceneIdx+1)/2]];
          CGSize screenSize = [[CCDirector sharedDirector] winSize];
@@ -338,7 +377,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
                 CCScene *scene = [CCScene node];
                 HelloWorldLayer *layer = [[[HelloWorldLayer alloc] initPicture] autorelease];
                 [scene addChild:layer ];
-                [[CCDirector sharedDirector] replaceScene:[CCTransitionFlipX transitionWithDuration:1.0f scene:scene ]];
+                [[CCDirector sharedDirector] replaceScene:[CCTransitionCrossFade  transitionWithDuration:1.0f scene:scene ]];
                 
             } ];
             item2.position = ccp(659,854);
@@ -440,7 +479,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
         kmGLPushMatrix();
         
         
-        world->DrawDebugData();
+        //world->DrawDebugData();
         
         kmGLPopMatrix();
     }
@@ -572,7 +611,7 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
     CCScene *scene = [CCScene node];
     HelloWorldLayer *layer = [[[HelloWorldLayer alloc] initPicture] autorelease];
     [scene addChild:layer ];
-    [[CCDirector sharedDirector] replaceScene:[CCTransitionFlipX transitionWithDuration:0.5 scene:scene]];
+    [[CCDirector sharedDirector] replaceScene:[CCTransitionFade transitionWithDuration:0.5 scene:scene withColor:ccc3(255, 255, 255)]];
     
 }
 - (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -597,6 +636,9 @@ int B2FrameCount[22] = {0,0,2,4,2,1,2,1,6,2,3,3,2,3,1,2,1,1,1,4,1,4};
 
 -(void)nextmigong
 {
+    
+    
+    
     sceneIdx+=2;
     CCScene *scene = [CCScene node];
     HelloWorldLayer *layer = [[[HelloWorldLayer alloc] initOther] autorelease];
